@@ -40,5 +40,5 @@ $ forge snapshot
 ### Deploy
 
 ```shell
-$ forge script script/KAKU.s.sol:KAKUScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+$ forge script script/KAKUScript.s.sol:KAKUScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
