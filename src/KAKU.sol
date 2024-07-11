@@ -4,11 +4,12 @@ pragma solidity 0.8.20;
 import {ERC20Capped, ERC20} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import  {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
-contract KAKU is  ERC20Capped, Ownable {
+contract KAKU is  ERC20Capped, Ownable,ReentrancyGuard {
     // mapping for tracking used signatures
     mapping(bytes => bool) private signatureUsed;
 
@@ -32,15 +33,6 @@ contract KAKU is  ERC20Capped, Ownable {
         _mint(to, amount);
     }
 
-    /**
-     * @dev Function for user to burn there balance.
-     * @param amount The amount of tokens to be burned.
-     */
-    function burn(uint256 amount) external {
-        // Call the internal _burn function from ERC20 to destroy tokens
-        _burn(msg.sender, amount);
-    }
-
  
     /**
      * @notice Executes a gasless transfer on behalf of the signer.
@@ -59,7 +51,7 @@ contract KAKU is  ERC20Capped, Ownable {
         uint64 nonce,
         uint256 reward,
         bytes calldata signature
-    ) external {
+    ) external nonReentrant {
         // check that if the signature is already used
         if (signatureUsed[signature]) {
             revert SignatureAlreadUsed();

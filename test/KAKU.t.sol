@@ -37,19 +37,7 @@ contract KAKUTest is Test {
         kaku.mint(address(1), 1_000_000_001 ether);
     }
 
-    function test_burn() public {
-        kaku.mint(address(1), 100_000_000 ether);
-        uint256 bal = kaku.balanceOf(address(1));
-        vm.prank(address(1));
-        kaku.burn(100_000_000 ether);
-        assertEq(kaku.balanceOf(address(1)), bal - 100_000_000 ether);
-    }
-
-    function testFailERC20InsufficientBalance() public {
-        kaku.mint(address(1), 100_000_000 ether);
-        vm.prank(address(1));
-        kaku.burn(100_000_001 ether);
-    }
+  
 
     function test_meta_tx() public {
         (address alice, uint256 alicePk) = makeAddrAndKey("alice");
