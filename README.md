@@ -7,9 +7,6 @@ Our team is hard at work building an innovative financial platform that will rev
 
 2. [App](https://app.kaku.finance/login)
 
-3. [WhitePaper](https://cerulean-birch-781.notion.site/Kaku-Whitepaper-draft-2-0-62a11ae458484e6d8d4f8a72c2164997) 
-
-
 
 ## Usage
 
