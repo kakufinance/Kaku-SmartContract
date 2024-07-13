@@ -14,7 +14,7 @@ contract ClaimKAKU is Ownable {
     using SafeERC20 for IERC20;
 
     bytes32 public merkleRoot; // Root of the Merkle tree
-    address public token; // Address of the KAKU token contract
+    address public immutable token; // Address of the KAKU token contract
     mapping(address => bool) public isClaimed; // Tracks whether an address has claimed their tokens
 
     // events
@@ -88,15 +88,5 @@ contract ClaimKAKU is Ownable {
         }
     }
 
-    /**
-     * @notice Updates the address of the KAKU token contract
-     * @dev Only callable by the contract owner. This allows changing the token contract if needed.
-     * @param _token The new address of the KAKU token contract
-     */
-    function setToken(address _token) external onlyOwner {
-        if (_token == address(0)) {
-            revert ZeroAddress();
-        }
-        token = _token;
-    }
+
 }
