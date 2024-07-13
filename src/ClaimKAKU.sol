@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.20;
+pragma solidity 0.8.24;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -35,6 +35,9 @@ contract ClaimKAKU is Ownable {
         address _token,
         bytes32 _merkleRoot
     ) payable Ownable(msg.sender) {
+         if (_token == address(0)) {
+            revert ZeroAddress();
+        }
         token = _token;
         merkleRoot = _merkleRoot;
     }
@@ -52,14 +55,15 @@ contract ClaimKAKU is Ownable {
         if (isClaimed[msg.sender]) {
             revert AlreadyClaimed();
         }
-        bytes32 leaf = keccak256(abi.encode(msg.sender, _amount));
+        // hash twice to prevent second preimage attack 
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(msg.sender, _amount))));
         if (!MerkleProof.verify(_merkleProof, merkleRoot, leaf)) {
             revert InvalidMarkleProof();
         }
 
         isClaimed[msg.sender] = true;
-        IERC20(token).safeTransfer(msg.sender, _amount);
         emit LogClaimedKAKU(msg.sender, _amount);
+        IERC20(token).safeTransfer(msg.sender, _amount);
     }
 
     /**
@@ -77,10 +81,11 @@ contract ClaimKAKU is Ownable {
      */
     function withdrawTokens() external onlyOwner {
         uint256 bal = IERC20(token).balanceOf(address(this));
-        if (bal == 0) {
+        if (bal > 0) {
+            IERC20(token).safeTransfer(owner(), bal);
+        }else{
             revert NoTokensToWithdraw();
         }
-        IERC20(token).safeTransfer(owner(), bal);
     }
 
     /**

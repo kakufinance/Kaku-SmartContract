@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity 0.8.24;
 
 import {Test, console} from "forge-std/Test.sol";
 import {KAKU} from "../src/KAKU.sol";
 
 contract KAKUTest is Test {
     KAKU public kaku;
+     bytes32 private constant META_TRANSFER_TYPEHASH =
+        keccak256("MetaTransfer(address from,address to,uint256 value,uint256 reward,uint256 nonce)");
+
+    error WrongSignature();
 
     function setUp() public {
         kaku = new KAKU();
@@ -44,76 +48,63 @@ contract KAKUTest is Test {
 
         kaku.mint(alice, 100_000_000 ether);
 
-        uint64 nonce = uint64(block.timestamp);
 
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(
+        bytes32 messageHash = kaku.getMessageHash(
                 alice,
                 address(2),
                 uint256(1 ether),
-                nonce,
-                uint256(0)
-            )
-        );
+                uint256(0),
+                kaku.nonces(alice)
+            );
 
-        bytes32 prefixedMessage = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
-        );
+       
 
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, prefixedMessage);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, messageHash);
 
         bytes memory signature = abi.encodePacked(r, s, v);
 
         vm.prank(address(3));
-        kaku.gasLessTransfer(
+        kaku.metaTransfer(
             alice,
             address(2),
             uint256(1 ether),
-            nonce,
             0,
             signature
         );
     }
 
-    function testFailSignatureAlreadyUsed() public {
+    function test_fail_when_use_same_sig() public {
         (address alice, uint256 alicePk) = makeAddrAndKey("alice");
 
         kaku.mint(alice, 100_000_000 ether);
 
-        uint64 nonce = uint64(block.timestamp);
 
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(
-                alice,
-                address(2),
-                uint256(1 ether),
-                nonce,
-                uint256(0)
-            )
+        bytes32 messageHash = kaku.getMessageHash(
+            alice,
+            address(2),
+            uint256(1 ether),
+            0,
+            kaku.nonces(alice)
         );
 
-        bytes32 prefixedMessage = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
-        );
 
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, prefixedMessage);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, messageHash);
 
         bytes memory signature = abi.encodePacked(r, s, v);
 
         vm.startPrank(address(3));
-        kaku.gasLessTransfer(
+        kaku.metaTransfer(
             alice,
             address(2),
             uint256(1 ether),
-            nonce,
             0,
             signature
         );
-        kaku.gasLessTransfer(
+        vm.expectRevert(WrongSignature.selector);
+        kaku.metaTransfer(
             alice,
             address(2),
             uint256(1 ether),
-            nonce,
             0,
             signature
         );
@@ -124,32 +115,27 @@ contract KAKUTest is Test {
 
         kaku.mint(alice, 100_000_000 ether);
 
-        uint64 nonce = uint64(block.timestamp);
 
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(
+        bytes32 messageHash = kaku.getMessageHash(
                 alice,
                 address(2),
                 uint256(1 ether),
-                nonce,
-                uint256(0)
-            )
+                uint256(0),
+                kaku.nonces(alice)
+            
         );
 
-        bytes32 prefixedMessage = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
-        );
+ 
 
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, prefixedMessage);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, messageHash);
 
         bytes memory signature = abi.encodePacked(r, s, v);
 
         vm.prank(address(3));
-        kaku.gasLessTransfer(
+        kaku.metaTransfer(
             alice,
             address(2),
             uint256(2 ether),
-            nonce,
             0,
             signature
         );
