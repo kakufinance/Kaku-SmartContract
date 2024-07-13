@@ -12,3 +12,6 @@ out/
 .env
 /lib
 .vscode
+.deps
+src/artifacts
+compiler_config.json

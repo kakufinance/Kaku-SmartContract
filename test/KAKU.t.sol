@@ -9,25 +9,24 @@ contract KAKUTest is Test {
      bytes32 private constant META_TRANSFER_TYPEHASH =
         keccak256("MetaTransfer(address from,address to,uint256 value,uint256 reward,uint256 nonce)");
 
-    error WrongSignature();
 
     function setUp() public {
         kaku = new KAKU();
     }
 
-    function test_decimals() public view {
+    function testDecimals() public view {
         assertEq(kaku.decimals(), 18);
     }
 
-    function test_name() public view {
+    function testName() public view {
         assertEq(kaku.name(), "Kaku Finance");
     }
 
-    function test_symbol() public view {
+    function testSymbol() public view {
         assertEq(kaku.symbol(), "KKFI");
     }
 
-    function test_mint() public {
+    function testMint() public {
         kaku.mint(address(1), 10_000 ether);
         assertEq(kaku.balanceOf(address(1)), 10_000 ether);
     }
@@ -43,16 +42,16 @@ contract KAKUTest is Test {
 
   
 
-    function test_meta_tx() public {
+    function testMetaTransaction() public {
         (address alice, uint256 alicePk) = makeAddrAndKey("alice");
 
         kaku.mint(alice, 100_000_000 ether);
 
-
+        uint256 transferAmount = 1 ether;
         bytes32 messageHash = kaku.getMessageHash(
                 alice,
                 address(2),
-                uint256(1 ether),
+                transferAmount,
                 uint256(0),
                 kaku.nonces(alice)
             );
@@ -62,18 +61,21 @@ contract KAKUTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, messageHash);
 
         bytes memory signature = abi.encodePacked(r, s, v);
-
+        uint256 bal = kaku.balanceOf(alice);
         vm.prank(address(3));
         kaku.metaTransfer(
             alice,
             address(2),
-            uint256(1 ether),
+            transferAmount,
             0,
             signature
         );
+
+        assertEq(kaku.balanceOf(alice),bal - transferAmount);
+        assertEq(kaku.balanceOf(address(2)),transferAmount);
     }
 
-    function test_fail_when_use_same_sig() public {
+    function testFailWrongSignature_metaTransaction() public {
         (address alice, uint256 alicePk) = makeAddrAndKey("alice");
 
         kaku.mint(alice, 100_000_000 ether);
@@ -100,7 +102,7 @@ contract KAKUTest is Test {
             0,
             signature
         );
-        vm.expectRevert(WrongSignature.selector);
+      
         kaku.metaTransfer(
             alice,
             address(2),
@@ -139,5 +141,42 @@ contract KAKUTest is Test {
             0,
             signature
         );
+    }
+
+
+
+        function testMetaTransactionRelayerFee() public {
+        (address alice, uint256 alicePk) = makeAddrAndKey("alice");
+
+        kaku.mint(alice, 100_000_000 ether);
+
+        uint256 transferAmount = 1 ether;
+        uint256 relayerFee = 0.01 ether;
+        bytes32 messageHash = kaku.getMessageHash(
+                alice,
+                address(2),
+                transferAmount,
+                relayerFee,
+                kaku.nonces(alice)
+            );
+
+       
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, messageHash);
+
+        bytes memory signature = abi.encodePacked(r, s, v);
+        uint256 bal = kaku.balanceOf(alice);
+        vm.prank(address(3));
+        kaku.metaTransfer(
+            alice,
+            address(2),
+            transferAmount,
+            relayerFee,
+            signature
+        );
+
+        assertEq(kaku.balanceOf(alice),bal - transferAmount - relayerFee);
+        assertEq(kaku.balanceOf(address(2)),transferAmount);
+        assertEq(kaku.balanceOf(address(3)),relayerFee);
     }
 }

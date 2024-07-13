@@ -78,22 +78,6 @@ contract KAKU is ERC20Capped, ERC20Permit, Ownable, ReentrancyGuard {
         }
     }
 
-    /**
-     * @notice Checks if the signature is valid or not.
-     * @param from The address from which the tokens will be transferred.
-     * @param hash hash of the message Typed Data V4.
-     * @param signature The cryptographic signature authorizing the transfer.
-     */
-    function _isValidSignature(
-        address from,
-        bytes32 hash,
-        bytes calldata signature
-    ) private pure returns (bool) {
-        // recover the original signer
-        (address signer, , ) = ECDSA.tryRecover(hash, signature);
-        // check that the signer is equal to the from address
-        return signer == from;
-    }
 
     /**
      * @notice hash the message to Typed Data V4.
@@ -125,6 +109,23 @@ contract KAKU is ERC20Capped, ERC20Permit, Ownable, ReentrancyGuard {
                     )
                 )
             );
+    }
+
+    /**
+     * @notice Checks if the signature is valid or not.
+     * @param from The address from which the tokens will be transferred.
+     * @param hash hash of the message Typed Data V4.
+     * @param signature The cryptographic signature authorizing the transfer.
+     */
+    function _isValidSignature(
+        address from,
+        bytes32 hash,
+        bytes calldata signature
+    ) private pure returns (bool) {
+        // recover the original signer
+        (address signer, , ) = ECDSA.tryRecover(hash, signature);
+        // check that the signer is equal to the from address
+        return signer == from;
     }
 
     function _update(

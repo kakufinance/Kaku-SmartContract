@@ -69,8 +69,13 @@ contract TestClaim is Test {
 
     function testClaim() public {
         bytes32[] memory proof = m.getProof(data, 2); // will get proof for 0x2 value
+        assertEq(kaku.balanceOf(0x32b0B0DCA1348Eb281F30B7430f1957eCaE700A3),0);
+        uint256 bal = kaku.balanceOf(address(claim));
         vm.prank(address(0x32b0B0DCA1348Eb281F30B7430f1957eCaE700A3));
         claim.claimKAKU(5 ether, proof);
+        assertEq(kaku.balanceOf(0x32b0B0DCA1348Eb281F30B7430f1957eCaE700A3),5 ether);
+        assertEq(kaku.balanceOf(address(claim)),bal - 5 ether);
+
     }
 
     function testFailInvalidMarkleProof() public {
@@ -84,23 +89,23 @@ contract TestClaim is Test {
         claim.claimKAKU(5 ether, proof);
     }
 
-    function test_withdraw() public {
+    function testWithdraw() public {
+        uint256 bal = kaku.balanceOf(address(claim));
+        claim.withdrawTokens();
+        assertEq(kaku.balanceOf(address(this)),bal);
+    }
+
+    function testFailNoTokensToWithdraw() public {
+        claim.withdrawTokens();
         claim.withdrawTokens();
     }
 
-    function test_fail_withdraw_zero_token_bal() public {
-        claim.withdrawTokens();
-        vm.expectRevert();
-        claim.withdrawTokens();
-    }
-
-    function test_fail_withdraw() public {
-        vm.expectRevert();
+    function testFailOwnableUnauthorizedAccount_withdrawTokens() public {
         vm.prank(address(1));
         claim.withdrawTokens();
     }
 
-    function test_update_merkle_root() public {
+    function testUpdateMerkleRoot() public {
         m = new Merkle();
         // Toy Data
         data = new bytes32[](4);
@@ -146,8 +151,8 @@ contract TestClaim is Test {
         );
         // Get Root, Proof, and Verify
         bytes32 root = m.getRoot(data);
-
         claim.updateMerkleRoot(root);
+        assertEq(claim.merkleRoot(),root);
     }
 
     function testFailOwnableUnauthorizedAccount() public {
