@@ -15,3 +15,7 @@ out/
 .deps
 src/artifacts
 compiler_config.json
+.states
+
+script/merkel_js_script/node_modules
+script/merkel_js_script/package-lock.json

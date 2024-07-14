@@ -34,7 +34,7 @@ contract ClaimKAKU is Ownable {
     constructor(
         address _token,
         bytes32 _merkleRoot
-    ) payable Ownable(msg.sender) {
+    )  Ownable(msg.sender) {
          if (_token == address(0)) {
             revert ZeroAddress();
         }
