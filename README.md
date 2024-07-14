@@ -39,3 +39,12 @@ $ forge snapshot
 ```shell
 $ forge script script/KAKUScript.s.sol:KAKUScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
+
+
+
+
+
+## sepolia addresses
+
+Claim KAKU: 0xB140a750C1226655E22B85CF562b95a8acD2cB47
+$KKFI : 0x79aECc388eC114EEc713d8a4eB6a608EE5C91000
