@@ -5,11 +5,11 @@ import {ERC20Capped, ERC20} from "@openzeppelin/contracts/token/ERC20/extensions
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 
-import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
-contract KAKU is ERC20Capped, ERC20Permit, Ownable, ReentrancyGuard {
+contract KAKU is EIP712,Nonces,ERC20Capped, Ownable, ReentrancyGuard {
     bytes32 private constant META_TRANSFER_TYPEHASH =
         keccak256(
             "MetaTransfer(address from,address to,uint256 value,uint256 reward,uint256 nonce)"
@@ -26,7 +26,7 @@ contract KAKU is ERC20Capped, ERC20Permit, Ownable, ReentrancyGuard {
 
     constructor()
         ERC20("Kaku Finance", "KKFI")
-        ERC20Permit("Kaku Finance")
+        EIP712("Kaku Finance","1")
         ERC20Capped(1_000_000_000 ether)
         Ownable(msg.sender)
     {}
@@ -128,11 +128,5 @@ contract KAKU is ERC20Capped, ERC20Permit, Ownable, ReentrancyGuard {
         return signer == from;
     }
 
-    function _update(
-        address from,
-        address to,
-        uint256 value
-    ) internal override(ERC20, ERC20Capped) {
-        super._update(from, to, value);
-    }
+ 
 }

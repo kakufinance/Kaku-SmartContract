@@ -24,27 +24,34 @@ fs.createReadStream(csvFilePath)
   })
   .on("end", () => {
     const leaves = rows.map((row) => {
-        const data = `${row.Wallet}${" "}${toWei(row.Amount)}`;
-        console.log(data)
       return encodeLeaf(row.Wallet, toWei(row.Amount));
     });
+    
+    // Check if the number of leaves is odd
+    if (leaves.length % 2 !== 0) {
+      // Duplicate the last element
+      leaves.push(leaves[leaves.length - 1]);
+    }
+    
     console.log("leaves",leaves)
-
-// Check if the number of leaves is odd
-if (leaves.length % 2 !== 0) {
-  // Duplicate the last element
-  leaves.push(leaves[leaves.length - 1]);
-}
-
-    const merkleTree = new MerkleTree(leaves, keccak256, {
-      hashLeaves: true,
-      sortPairs: true,
+    
+    
+   
+    const obj = {};
+    rows.forEach((value, _) => {
+      obj[`key${value.Wallet}`] = value.Amount;
     });
-    const root = merkleTree.getHexRoot();
-    console.log("root", root);
+    
+    fs.writeFileSync("output.json",JSON.stringify({leaves,leaf:obj}))
+    // const merkleTree = new MerkleTree(leaves, keccak256, {
+    //   hashLeaves: true,
+    //   sortPairs: true,
+    // });
+    // const root = merkleTree.getHexRoot();
+    // console.log("root", root);
 
 
-    // let leaf = keccak256("0x000000000000000000000000a74f654cc0f1a0ccf6cbcf1cdc2acc4b3b17be4d00000000000000000000000000000000000000000000001b1ae4d6e2ef500000");
+    // let leaf = keccak256("0xb0b161a0fe749a1de718fd703072d9f3cb567596deea60c7bebb36eb29ae34df");
     // let proof = merkleTree.getHexProof(leaf);
     // console.log(proof)
     
