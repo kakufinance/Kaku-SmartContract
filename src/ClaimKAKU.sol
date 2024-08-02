@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.24;
+pragma solidity 0.8.25;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Ownable,Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /**
  * @dev This contract allows users to claim KAKU tokens if they are part of a Merkle tree whitelist.
  * The contract uses OpenZeppelin's SafeERC20 for safe token transfers and Ownable for access control.
  */
-contract ClaimKAKU is Ownable {
+contract ClaimKAKU is Ownable2Step {
     using SafeERC20 for IERC20;
 
     bytes32 public merkleRoot; // Root of the Merkle tree
@@ -19,6 +19,7 @@ contract ClaimKAKU is Ownable {
 
     // events
     event LogClaimedKAKU(address indexed sender, uint256 indexed _amount);
+    event LogMerkelRootUpdated(bytes32 root);
 
     // errors
     error ZeroAddress();
@@ -73,6 +74,7 @@ contract ClaimKAKU is Ownable {
      */
     function updateMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
         merkleRoot = _merkleRoot;
+        emit LogMerkelRootUpdated(_merkleRoot);
     }
 
     /**
