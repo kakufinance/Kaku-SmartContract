@@ -38,14 +38,11 @@ $ forge snapshot
 $ forge script script/KAKUScript.s.sol:KAKUScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 ## Token Details 
-```Token Name: Kaku Finance
-```
-```Token Ticker: KKFI
-```
-```Token Standard: ERC20
-```
-```Total Supply: 1,000,000,000 KKFI
-```
+- Token Name: Kaku Finance
+- Token Ticker: KKFI
+- Token Standard: ERC20
+- Total Supply: 1,000,000,000 KKFI
+
 ## Ethereum Contract Addresses 
 $KKFI : 0x405AD8581E66Cc9072aAAd60b2943ddb0871BC47
 
