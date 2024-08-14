@@ -42,11 +42,8 @@ $ forge snapshot
 $ forge script script/KAKUScript.s.sol:KAKUScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 
+## Ethereum Contract Addresses
+$KKFI : 0x405AD8581E66Cc9072aAAd60b2943ddb0871BC47
 
-
-
-
-## sepolia addresses
-
+## Sepolia Address (Test)
 Claim KAKU: 0xB140a750C1226655E22B85CF562b95a8acD2cB47
-$KKFI : 0x79aECc388eC114EEc713d8a4eB6a608EE5C91000
